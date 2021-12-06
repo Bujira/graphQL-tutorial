@@ -2,12 +2,17 @@ const { ApolloServer } = require('apollo-server');
 const fs = require('fs');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client')
+const { PubSub } = require('apollo-server')
 const { getUserId } = require('./utils');
 
 const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
 const User = require('./resolvers/User')
 const Link = require('./resolvers/Link')
+const Subscription = require('./resolvers/Subscription')
+const Vote = require('./resolvers/Vote')
+
+const pubsub = new PubSub()
 
 const prisma = new PrismaClient()
 
@@ -15,7 +20,9 @@ const resolvers = {
     Query,
     Mutation,
     User,
-    Link
+    Link,
+    Subscription,
+    Vote,
 }
 
 // Schema and Resolvers bundled and sent to Apollo Server
@@ -29,6 +36,7 @@ const server = new ApolloServer({
         return {
             ...req,
             prisma,
+            pubsub,
             userId:
                 req && req.headers.authorization
                     ? getUserId(req)
